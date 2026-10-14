@@ -2151,6 +2151,62 @@ mod tests {
     }
 
     #[test]
+    fn korean_wording_preserves_ui_distinctions() {
+        let ko = Lang::from_code("ko").expect("Korean registered");
+        // Measurement precision counts decimal places; the booklet selector chooses
+        // front/back sides, and extracted image names contain a page number.
+        assert!(tr(ko, "Decimals").contains("자릿수"));
+        assert!(tr(ko, "Booklet subset:").contains("면"));
+        assert!(
+            tr(ko, "Each image once, named after the document and page. JPEG images are saved unchanged; others as PNG.").contains("페이지 번호")
+        );
+        // Replacement comments and accessibility descriptions are different inputs.
+        assert_ne!(tr(ko, "Replacement text"), tr(ko, "Alternate text"));
+        assert!(tr(ko, "Try the form as people filling it in will see it").contains("입력하는 사용자"));
+        // Remove Hidden Information offers category selection; Sanitize applies all
+        // categories. Both remove hidden information, not the visible document body.
+        assert_ne!(tr(ko, "Sanitize"), tr(ko, "Remove hidden information"));
+        for label in ["Sanitize", "Sanitize Documents", "Sanitize document", "Sanitize document…"] {
+            let translated = tr(ko, label);
+            assert!(translated.contains("숨겨진 정보") && translated.contains("일괄"), "{label}: {translated}");
+        }
+    }
+
+    #[test]
+    fn korean_builtin_watermark_description_preserves_the_inserted_literal() {
+        use pdfcraft_engine::actions::{Step, builtin};
+        let ko = Lang::from_code("ko").expect("Korean registered");
+        let action = builtin().into_iter().find(|action| action.name == "Mark as Confidential").expect("built-in watermark action");
+        let watermark = action
+            .steps
+            .iter()
+            .find_map(|step| match step {
+                Step::AddWatermark(text) => Some(text),
+                _ => None,
+            })
+            .expect("built-in watermark text");
+        assert!(!watermark.is_empty());
+        assert!(tr(ko, &action.description).contains(watermark.as_str()), "the translated description must name the text the action inserts");
+    }
+
+    #[test]
+    fn korean_user_names_remain_literal_without_fixed_particles() {
+        let ko = Lang::from_code("ko").expect("Korean registered");
+        // Vowel and consonant endings need different Korean particles. Neutral labels
+        // also keep braces in a user-provided name from becoming template arguments.
+        for name in ["문서", "파일", "이름 {rev} {name}"] {
+            let pinned = fmt(tr(ko, "Pinned {folder} to Home"), &[("folder", name)]);
+            assert_eq!(pinned.strip_prefix("홈에 고정했습니다: "), Some(name));
+            let removed = fmt(tr(ko, "Remove \"{name}\" from this list? The file itself is not deleted."), &[("name", name)]);
+            assert!(removed.starts_with(&format!("\"{name}\": ")));
+            let certified = fmt(tr(ko, "Rev. {rev}: Certified by {name}"), &[("rev", "3"), ("name", name)]);
+            assert_eq!(certified, format!("개정 3: 인증자 {name}"));
+            let signed = fmt(tr(ko, "Rev. {rev}: Signed by {name}"), &[("rev", "3"), ("name", name)]);
+            assert_eq!(signed, format!("개정 3: 서명자 {name}"));
+        }
+    }
+
+    #[test]
     fn lithuanian_is_registered_and_persists() {
         let lt = Lang::from_code("lt").expect("lt registered");
         assert_eq!(lt.name(), "Lietuvių");

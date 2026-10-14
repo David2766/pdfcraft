@@ -39,7 +39,7 @@ add a language: [localization.md](localization.md). Summary in [ROADMAP.md](../R
 | Indonesian | `id` | 0 | none | Latin | no | none | no | 3–5 |
 | Japanese | `ja` | 2,123 (99.1%) | dialogs and tooltips; no help | BIZ UDPGothic from craft-fonts; IME patched on macOS, Windows, X11, Wayland; vertical text renders but can't be edited | no | partial | yes | 4–8 |
 | German | `de` | 2,128 (99.3%) | dialogs and tooltips; no help | Latin | community, in progress (#828: terminology, clipping) | partial | yes | 2–4 |
-| Korean | `ko` | 2,592 current keys | menus, dialogs, tooltips and translatable engine wordings; no localized help | Desktop reads installed Malgun Gothic/Gulim, Apple SD Gothic Neo or NanumGothic/UnDotum for Hangul in every UI family; no embedded Korean face or web delivery | AI-authored, cross-reviewed; no external native-speaker review | partial | yes | not re-estimated |
+| Korean | `ko` | 2,592 current keys | menus, dialogs, tooltips and translatable engine wordings; no localized help | Desktop reads installed Hangul faces in every UI family, with alternate Windows/macOS/Unix candidates and a 96 MiB collection limit; no embedded Korean face or web delivery | AI-authored, cross-reviewed; no external native-speaker review | partial | yes | not re-estimated |
 | Vietnamese | `vi` | 0 | none | Latin with stacked diacritics; bundled Inter covers them (not tested) | no | none | no | 3–5 |
 
 **Localization dimension ≈ 59%**: the mean over the twelve, counting a catalog's percentage but only
@@ -77,6 +77,6 @@ Acrobat languages PdfCraft lacks: Danish, Dutch, Finnish, Norwegian, Swedish, He
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-10-14 | minor | Korean desktop catalog covers 2,592 current keys; date names and installed interface-only Hangul fallback added. Web font delivery, localized help and Korean PDF writing remain separate. Weighted readiness and hours not re-measured. |
+| 2026-10-14 | minor | Korean desktop catalog covers 2,592 current keys; date names and installed interface-only Hangul fallback added. Follow-up corrects 19 wordings and expands installed-font candidates with a 96 MiB Hangul collection cap, retaining Chinese font priority. Web font delivery, localized help and Korean PDF writing remain separate. Weighted readiness and hours not re-measured. |
 | 2026-10-12 | minor | Added current counts for Kazakh, Polish, Slovenian, Greek, Turkish and Lithuanian; retained existing language assessments and the original percentage snapshot |
 | 2026-10-10 | major | Created. Catalog counts measured from `crates/ui-egui/src/i18n/*.tsv` against the 2,143-key union; Acrobat's localizations from its bundle's `.lproj` and Sequences folder names |

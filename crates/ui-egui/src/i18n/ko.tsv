@@ -38,7 +38,7 @@
 	@{login}: {prs} PRs, {commits} commits, +{added} / −{deleted} lines (Δ {delta}), +{bin_added} / −{bin_deleted} binary assets, {first} – {last}	@{login}: PR {prs}개, 커밋 {commits}개, +{added} / −{deleted}줄(Δ {delta}), 바이너리 자산 +{bin_added} / −{bin_deleted}개, {first} – {last}
 	A button	버튼
 	A clean-room, open-source PDF application written in Rust. MIT OR Apache-2.0.	독립적으로 구현한 Rust 기반 오픈 소스 PDF 애플리케이션입니다. MIT OR Apache-2.0.
-	A diagonal CONFIDENTIAL watermark on every page.	모든 페이지에 대각선으로 배치된 기밀 워터마크입니다.
+	A diagonal CONFIDENTIAL watermark on every page.	모든 페이지에 대각선으로 CONFIDENTIAL 워터마크를 추가합니다.
 	A document needs at least one page: copy instead	문서에는 페이지가 하나 이상 필요합니다. 대신 복사하세요.
 	A font isn't embedded	글꼴이 포함되어 있지 않음
 	A form field has additional actions	양식 필드에 추가 동작이 있음
@@ -255,7 +255,7 @@
 	Author	작성자
 	Auto	자동
 	Auto ({percent}%)	자동({percent}%)
-	Auto follows the system's text size. Pages always render at the display's full resolution.	자동은 시스템의 텍스트 크기를 따릅니다. 페이지는 항상 디스플레이의 최대 해상도로 렌더링됩니다.
+	Auto follows the system's text size. Pages always render at the display's full resolution.	자동은 시스템의 텍스트 크기를 따릅니다. 페이지는 항상 디스플레이의 전체 해상도로 렌더링됩니다.
 	Auto portrait/landscape	자동 세로/가로 방향
 	Auto-rotate pages	페이지 자동 회전
 	Auto-size text to fit redaction region	가림 처리 영역에 맞게 텍스트 크기 자동 조정
@@ -284,7 +284,7 @@
 	Blue	파랑
 	Bold	굵게
 	Booklet	소책자
-	Booklet subset:	소책자 인쇄 범위:
+	Booklet subset:	소책자 인쇄 면:
 	Bookmark options	책갈피 옵션
 	Bookmarks	책갈피
 	Bookmarks Panel and Page	책갈피 패널 및 페이지
@@ -596,7 +596,7 @@
 	Dates	날짜
 	December	12월
 	Decimal places:	소수 자릿수:
-	Decimals	소수
+	Decimals	소수 자릿수
 	Decipher Only	암호 해독만
 	Declared conformance: {shown}	선언된 적합성: {shown}
 	Decorative figure	장식용 그림
@@ -646,7 +646,7 @@
 	Digitally sign	디지털 서명
 	Direction:	방향:
 	Disabled	사용 안 함
-	Discard	제거
+	Discard	버리기
 	Discard Objects	개체 제거
 	Discard User Data	사용자 데이터 제거
 	Discard all comments, forms and multimedia	모든 주석, 양식 및 멀티미디어 제거
@@ -737,7 +737,7 @@
 	Each field needs a tooltip that says what to enter. Add one in Field Properties > General > Tooltip.	각 필드에는 입력할 내용을 알려주는 도구 설명이 필요합니다. 필드 속성 > 일반 > 도구 설명에서 추가하세요.
 	Each file holds as many of the {n} pages as fit.	각 파일에 {n}페이지 중 크기 제한에 맞는 만큼의 페이지를 넣습니다.
 	Each image is measured where pages draw it; an image is replaced only if the result is smaller.	각 이미지는 페이지에 그려지는 크기를 기준으로 측정하며 결과가 더 작을 때만 이미지를 교체합니다.
-	Each image once, named after the document and page. JPEG images are saved unchanged; others as PNG.	각 이미지를 한 번씩 문서와 페이지 이름으로 저장합니다. JPEG 이미지는 그대로 저장하고 나머지는 PNG로 저장합니다.
+	Each image once, named after the document and page. JPEG images are saved unchanged; others as PNG.	각 이미지를 한 번씩 문서 이름과 페이지 번호로 저장합니다. JPEG 이미지는 그대로 저장하고 나머지는 PNG로 저장합니다.
 	Earlier in tab order	탭 순서에서 앞으로
 	Edit	편집
 	Edit Action	동작 편집
@@ -1528,7 +1528,7 @@
 	Pin folder to Home…	홈에 폴더 고정…
 	Pink	분홍색
 	Pinned folders need the desktop app	폴더 고정에는 데스크톱 앱이 필요합니다
-	Pinned {folder} to Home	{folder}을 홈에 고정했습니다
+	Pinned {folder} to Home	홈에 고정했습니다: {folder}
 	Place saved {what}	저장된 {what} 배치
 	Plain text in reading order; pages are separated by form feeds.	읽기 순서의 일반 텍스트입니다. 페이지는 폼 피드 문자로 구분됩니다.
 	Planned	계획됨
@@ -1651,7 +1651,7 @@
 	Reload	다시 불러오기
 	Reload documents when their files change on disk	디스크의 파일이 변경되면 문서 다시 불러오기
 	Remove	제거
-	Remove "{name}" from this list? The file itself is not deleted.	목록에서 "{name}"을 제거할까요? 파일 자체는 삭제되지 않습니다.
+	Remove "{name}" from this list? The file itself is not deleted.	"{name}": 목록에서 제거할까요? 파일 자체는 삭제되지 않습니다.
 	Remove all links	모든 링크 제거
 	Remove background	배경 제거
 	Remove checkmark	체크 표시 제거
@@ -1697,7 +1697,7 @@
 	Replace pages…	페이지 바꾸기…
 	Replace text	텍스트 바꾸기
 	Replaced	바뀜
-	Replacement text	대체 텍스트
+	Replacement text	바꿔 넣을 텍스트
 	Replacement: pages of {name}	대체할 내용: {name}의 페이지
 	Replaces the existing one on those pages.	해당 페이지에 있는 기존 항목을 바꿉니다.
 	Replacing images arrives on the web with image file pickers	웹의 이미지 바꾸기는 이미지 파일 선택 창 지원이 추가되면 사용할 수 있습니다
@@ -1724,9 +1724,9 @@
 	Restrictions lifted	제한 해제됨
 	Retain existing	기존 항목 유지
 	Rev. {rev}: Certified by an unknown signer	개정 {rev}: 알 수 없는 서명자가 인증함
-	Rev. {rev}: Certified by {name}	개정 {rev}: {name}이 인증함
+	Rev. {rev}: Certified by {name}	개정 {rev}: 인증자 {name}
 	Rev. {rev}: Signed by an unknown signer	개정 {rev}: 알 수 없는 서명자가 서명함
-	Rev. {rev}: Signed by {name}	개정 {rev}: {name}이 서명함
+	Rev. {rev}: Signed by {name}	개정 {rev}: 서명자 {name}
 	Reveal in File Explorer	파일 탐색기에서 표시
 	Reveal in Finder	Finder에서 표시
 	Reverse closed arrow	역방향 닫힌 화살표
@@ -1777,10 +1777,10 @@
 	SHA-1 digest	SHA-1 다이제스트
 	SHA-256 digest	SHA-256 다이제스트
 	Same as interface ({language})	인터페이스와 동일 ({language})
-	Sanitize	숨겨진 정보 제거
-	Sanitize Documents	문서의 숨겨진 정보 제거
-	Sanitize document	문서의 숨겨진 정보 제거
-	Sanitize document…	문서의 숨겨진 정보 제거…
+	Sanitize	숨겨진 정보 일괄 제거
+	Sanitize Documents	문서의 숨겨진 정보 일괄 제거
+	Sanitize document	문서의 숨겨진 정보 일괄 제거
+	Sanitize document…	문서의 숨겨진 정보 일괄 제거…
 	Sanitizing removes hidden information from the document: metadata, file attachments, comments, form fields (flattened), hidden text and layers, bookmarks, links, actions and scripts, and private application data.	문서에서 숨겨진 정보를 제거합니다. 메타데이터, 첨부 파일, 주석, 양식 필드(병합됨), 숨겨진 텍스트와 레이어, 책갈피, 링크, 동작과 스크립트, 응용 프로그램 전용 데이터가 제거됩니다.
 	Save	저장
 	Save & Close	저장 후 닫기
@@ -2136,7 +2136,7 @@
 	The signature has no valid byte range.	서명에 유효한 바이트 범위가 없습니다.
 	The signature includes an embedded timestamp.	서명에 타임스탬프가 포함되어 있습니다.
 	The signature is BER-encoded (indefinite lengths) rather than DER; it was read leniently.	서명이 DER 대신 BER(미정 길이)로 인코딩되어 있습니다. 완화된 기준으로 읽었습니다.
-	The signature uses the legacy adbe.x509.rsa_sha1 format.	서명이 기존 adbe.x509.rsa_sha1 형식을 사용합니다.
+	The signature uses the legacy adbe.x509.rsa_sha1 format.	서명이 구형 adbe.x509.rsa_sha1 형식을 사용합니다.
 	The signature value does not match the signer's certificate: the signature is corrupt.	서명 값이 서명자의 인증서와 일치하지 않습니다. 서명이 손상되었습니다.
 	The signature will be invisible.	서명은 보이지 않게 됩니다.
 	The signature's byte range does not exclude exactly its contents.	서명의 바이트 범위가 서명 내용만을 정확히 제외하지 않습니다.
@@ -2220,7 +2220,7 @@
 	This page couldn't be displayed.\n{e}	이 페이지를 표시하지 못했습니다.\n{e}
 	This printer offers no settings of its own.	이 프린터에는 고유 설정이 없습니다.
 	This printer's driver doesn't take two-sided settings from other programs, so its own setting applies. Change it in Properties…	이 프린터 드라이버는 다른 프로그램의 양면 설정을 받지 않으므로 자체 설정이 적용됩니다. 속성에서 변경하세요…
-	This signature uses RIPEMD-160, a legacy 160-bit hash algorithm that is no longer recommended for signatures. It still validates, but it should not be relied on.	이 서명은 서명용으로 더 이상 권장되지 않는 기존 160비트 해시 알고리즘인 RIPEMD-160을 사용합니다. 유효성 검사는 통과하지만 신뢰해서는 안 됩니다.
+	This signature uses RIPEMD-160, a legacy 160-bit hash algorithm that is no longer recommended for signatures. It still validates, but it should not be relied on.	이 서명은 서명용으로 더 이상 권장되지 않는 구형 160비트 해시 알고리즘인 RIPEMD-160을 사용합니다. 유효성 검사는 통과하지만 신뢰해서는 안 됩니다.
 	This signature uses SHA-1, a weak hash algorithm: collisions in it have been demonstrated. It still validates because many documents signed years ago use it, but it should not be relied on.	이 서명은 충돌이 입증된 취약한 해시 알고리즘인 SHA-1을 사용합니다. 오래전에 서명된 많은 문서에서 사용하므로 유효성 검사는 통과하지만 신뢰해서는 안 됩니다.
 	This web address mixes letters from different alphabets, a common way to imitate another site's name.	이 웹 주소에는 서로 다른 문자 체계의 글자가 섞여 있습니다. 다른 사이트 이름을 사칭할 때 흔히 쓰는 방법입니다.
 	This web address uses letters from another alphabet, which can look like familiar ones.	이 웹 주소에는 익숙한 글자와 비슷하게 보일 수 있는 다른 문자 체계의 글자가 사용되었습니다.
@@ -2243,7 +2243,7 @@
 	Total	합계
 	Translate	번역
 	Trust	신뢰
-	Try the form as people filling it in will see it	작성자에게 표시되는 모습으로 양식을 시험하세요
+	Try the form as people filling it in will see it	양식에 입력하는 사용자에게 보이는 모습으로 양식을 시험하세요
 	Two-Up (Cover Page)	두 페이지(표지)
 	Two-Up (Facing)	두 페이지(마주 보기)
 	Two-Up Continuous (Cover Page)	두 페이지 연속(표지)
@@ -2570,7 +2570,7 @@ calendar weekday	Th	목
 calendar weekday	Tu	화
 calendar weekday	We	수
 certificate	Basic constraints	기본 제약 조건
-certificate	Intended usage	의도된 용도
+certificate	Intended usage	사용 목적
 certificate	Issued by	발급자
 certificate	Issued to	발급 대상
 certificate	Issuer	발급자

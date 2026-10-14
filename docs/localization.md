@@ -94,8 +94,12 @@ literals and the engine's translatable wordings. Korean counts use one plural fo
 weekday names are also registered in `crates/engine/src/dates.rs`, in the same order as the UI
 registry. Language changes preserve document contents, filenames, paths and command ids.
 
-On desktop, the interface reads an installed Korean face at runtime: Malgun Gothic, then Gulim
-on Windows; Apple SD Gothic Neo on macOS; NanumGothic or UnDotum at supported Linux font paths.
+On desktop, the interface reads an installed Korean face at runtime: Malgun Gothic, Gulim,
+Batang or Malgun Gothic Semilight on Windows; Apple SD Gothic Neo, AppleGothic or Arial Unicode
+on macOS; NanumGothic, UnDotum, Baekmuk Gulim or DroidSansFallbackFull at supported Unix font
+paths. Preferred faces stay first. Korean font files, including collections, are limited to
+96 MiB and the first 16 faces; the other script-specific fallbacks keep their 32 MiB limit.
+Older last-resort faces may cover only common Korean syllables.
 This fallback is installed in every UI family regardless of the selected interface language,
 so Korean filenames work in an English interface too. Inter and JetBrains Mono retain priority
 for characters they cover; Chinese retains its existing regional font order.
@@ -103,6 +107,15 @@ for characters they cover; Chinese retains its existing regional font order.
 distributed or written into a PDF. The web build has no installed-font fallback and still
 requires a permitted Korean font delivery mechanism. Korean PDF text writing is separate work:
 Fill & Sign date names outside WinAnsi are refused with the existing explicit error.
+
+Korean wording distinguishes measurement precision from a decimal value, booklet sides
+from page ranges, replacement comments from accessibility descriptions, and selected hidden
+information removal from document-wide sanitizing. Built-in watermark descriptions name the
+literal text the action inserts; user-provided names retain their braces and do not acquire
+an incorrect fixed Korean particle. Catalog, font-loader and control-channel regressions cover
+these distinctions. The broader installed-font candidates and collection limit follow the
+compatibility approach discussed in [#1976](https://github.com/storytold/pdfcraft/pull/1976),
+while retaining the Chinese face's priority over shared Han glyphs in Korean faces.
 
 To revise Korean wording, edit the translation column of `crates/ui-egui/src/i18n/ko.tsv`
 with a UTF-8 editor. Keep the context and English key, escapes, placeholders, edge whitespace

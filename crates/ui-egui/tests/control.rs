@@ -398,6 +398,35 @@ fn korean_switch_preserves_filename_path_document_and_command_ids() {
     std::fs::remove_dir(&dir).unwrap();
 }
 
+#[test]
+fn korean_hidden_information_dialogs_distinguish_selection_from_sanitize() {
+    let (mut h, c) = harness();
+    ok(&mut h, &c, "ui.set", json!({ "key": "language", "value": "ko" }));
+    let documents = ok(&mut h, &c, "ui.state", json!({}))["documents"].clone();
+    let commands = ok(&mut h, &c, "ui.commands", json!({}));
+
+    ok(&mut h, &c, "ui.command", json!({ "id": "protect.remove_hidden" }));
+    h.run_steps(3);
+    h.get_by_label("숨겨진 정보 제거");
+    assert!(h.query_by_label("문서의 숨겨진 정보 일괄 제거").is_none());
+    if let Ok(dir) = std::env::var("PDFCRAFT_PRIVATE_KOREAN_QA") {
+        h.render().unwrap().save(format!("{dir}/selected-hidden-information.png")).unwrap();
+    }
+    ok(&mut h, &c, "ui.click", json!({ "label": "취소" }));
+
+    ok(&mut h, &c, "ui.command", json!({ "id": "redact.sanitize" }));
+    h.run_steps(3);
+    h.get_by_label("문서의 숨겨진 정보 일괄 제거");
+    h.get_by_role_and_label(egui::accesskit::Role::Button, "숨겨진 정보 일괄 제거");
+    assert_eq!(ok(&mut h, &c, "ui.state", json!({}))["documents"], documents, "opening the confirmation must not remove content");
+    if let Ok(dir) = std::env::var("PDFCRAFT_PRIVATE_KOREAN_QA") {
+        h.render().unwrap().save(format!("{dir}/sanitize-confirmation.png")).unwrap();
+    }
+    ok(&mut h, &c, "ui.click", json!({ "label": "취소" }));
+    assert_eq!(ok(&mut h, &c, "ui.state", json!({}))["documents"], documents);
+    assert_eq!(ok(&mut h, &c, "ui.commands", json!({})), commands);
+}
+
 #[cfg(target_os = "linux")]
 fn start_autoscroll(h: &mut Harness<'static, PdfCraftApp>, c: &ControlClient) -> egui::Pos2 {
     let p = h.state().views[0].viewport_rect().center();

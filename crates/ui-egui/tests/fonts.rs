@@ -22,8 +22,15 @@ fn korean_ui_and_filenames_have_glyphs_in_every_interface_family() {
     assert!(!theme::font_definitions().font_data.contains_key(NAME));
     let disabled = std::env::var_os("PDFCRAFT_SYSTEM_FONTS").is_some_and(|v| v == "0");
     let windows_font = std::env::var_os("WINDIR").map_or_else(|| std::path::PathBuf::from(r"C:\Windows"), std::path::PathBuf::from).join("Fonts");
-    let required = cfg!(windows) && ["malgun.ttf", "gulim.ttc"].iter().any(|f| windows_font.join(f).is_file())
-        || cfg!(target_os = "macos") && std::path::Path::new("/System/Library/Fonts/AppleSDGothicNeo.ttc").is_file();
+    let required = cfg!(windows) && ["malgun.ttf", "gulim.ttc", "batang.ttc", "malgunsl.ttf"].iter().any(|f| windows_font.join(f).is_file())
+        || cfg!(target_os = "macos")
+            && [
+                "/System/Library/Fonts/AppleSDGothicNeo.ttc",
+                "/System/Library/Fonts/Supplemental/AppleGothic.ttf",
+                "/Library/Fonts/Arial Unicode.ttf",
+            ]
+            .iter()
+            .any(|path| std::path::Path::new(path).is_file());
     for language in ["en", "ko", "zh-hans", "zh-hant"] {
         let defs = theme::installed_font_definitions(theme::CjkPreference::for_language(language));
         if disabled {

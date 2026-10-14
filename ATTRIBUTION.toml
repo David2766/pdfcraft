@@ -7,7 +7,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Korean UI strings, compiled in by crates/ui-egui/src/i18n/mod.rs"
-sha256 = "ec7d80610ef545befa689aa1c88567f76ad54b9287c223ee52006087fa7241dd"
+sha256 = "c3e5b5f4b00802e2252f001b27bc6c9244e4470b2619c426ec5dfa2fc40145c8"
 
 [[asset]]
 path = "crates/ui-egui/src/i18n/el.tsv"
