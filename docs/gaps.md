@@ -1,6 +1,6 @@
 # Where PdfCraft falls short of Acrobat Pro
 
-> **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (Korean wording follow-up and reconciliation with upstream main afa8e184; scoped native tests and quality gates verified; readiness and effort estimates not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
+> **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (Korean PR conflict refresh on upstream main dc41044b; common catalog and regression repairs retained from main; scoped verification repeated; readiness and effort estimates not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-14 · **Last updated:** 2026-10-14 · **Change:** minor (Korean desktop catalog, date names and installed Hangul fallback; readiness and hours not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-12 · **Last updated:** 2026-10-13 · **Change:** minor (gap 14: Vietnamese catalog shipped; Hindi/Indonesian/Korean and Arabic RTL remain) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-13 · **Last updated:** 2026-10-13 · **Change:** minor (gap 6: #1910 Organize Pages opens on the current page; estimates unchanged) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
@@ -371,6 +371,7 @@ update the numbers.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-15 | patch | Refreshed the Korean PR against `dc41044b`, retaining upstream common catalog and page-draft/Monospace regressions. 929 scoped native tests passed, 2 ignored; three batched assertion probes verified. Korean retains 2,670 keys; historical `afa8e184` verification and estimates are unchanged. |
 | 2026-10-15 | minor | Reconciled Korean desktop coverage with the upstream Vietnamese catalog. Gap 14 now records Hindi/Indonesian catalogs, Arabic RTL and Korean web font delivery as remaining work. Post-integration scoped verification passed on `afa8e184`; estimates unchanged. |
 | 2026-10-14 | minor | Korean desktop catalog covers 2,592 current keys; date names and installed interface-only Hangul fallback added. Web font delivery, localized help and Korean PDF writing remain separate. Weighted readiness and hours not re-measured. |
 | 2026-10-15 | patch | Gap 24: record localization and installers as partial (unusable Chinese, Telugu and Arabic; unsigned Linux packages) |

@@ -371,13 +371,14 @@ fn ui_fonts_work_without_craft_fonts() {
 }
 
 /// Latin- and Cyrillic-script catalogs are covered by each Inter UI face and the bundled
-/// monospace stack. JetBrains Mono remains first there; egui's bundled Hack/Ubuntu faces
-/// cover letters such as Bulgarian ѝ that it lacks. Installed system fonts are not involved.
-/// Check real cmap entries: `has_glyphs` on a lone face can count its replacement glyph.
+/// monospace stack, with JetBrains Mono followed by Inter. The complete stack's cmap
+/// entries are checked too; installed system fonts are not involved.
+/// `has_glyphs` on a lone face can count its replacement glyph.
 #[test]
 fn primary_ui_fonts_cover_latin_and_cyrillic_catalogs() {
     use skrifa::MetadataProvider as _;
     let defs = theme::font_definitions();
+    assert_eq!(&defs.families[&FontFamily::Monospace][..2], ["JetBrainsMono", "Inter"]);
     for (code, catalog) in [
         ("cs", include_str!("../src/i18n/cs.tsv")),
         ("el", include_str!("../src/i18n/el.tsv")),

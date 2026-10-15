@@ -1,6 +1,6 @@
 # PdfCraft parity with Adobe Acrobat Pro
 
-> **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (Korean wording follow-up and reconciliation with upstream main afa8e184; scoped native tests and quality gates verified; readiness and effort estimates not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
+> **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (Korean PR conflict refresh on upstream main dc41044b; common catalog and regression repairs retained from main; scoped verification repeated; readiness and effort estimates not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-14 · **Last updated:** 2026-10-14 · **Change:** minor (Korean desktop catalog, date names and installed Hangul fallback; readiness and hours not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** minor (localization ≈59% → ≈68%; weighted readiness 49.25 → 49.7 ≈ 50%) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 
@@ -294,6 +294,7 @@ licensed OCR or AI model.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-15 | patch | Refreshed the Korean PR against `dc41044b`, retaining upstream common catalog and page-draft/Monospace regressions. 929 scoped native tests passed, 2 ignored; three batched assertion probes verified. Korean retains 2,670 keys; historical `afa8e184` verification and estimates are unchanged. |
 | 2026-10-15 | minor | Reconciled Korean desktop coverage with upstream Vietnamese and Italian catalog progress (24 interface languages). Retained upstream readiness/hours as a historical estimate; Korean scoped post-integration verification passed on `afa8e184`. |
 | 2026-10-14 | minor | Korean desktop catalog covers 2,592 current keys; date names and installed interface-only Hangul fallback added. Web font delivery, localized help and Korean PDF writing remain separate. Weighted readiness and hours not re-measured. |
 | 2026-10-12 | minor | Exclusive image crops resize with their pixels across nested states, intervening operators and content streams; shared clips remain fixed. Synthetic engine/tool regressions and private image save/reopen checks; estimates unchanged. |
