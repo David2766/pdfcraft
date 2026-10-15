@@ -71,7 +71,8 @@ const PICKERS: &[&str] = &[
 #[test]
 fn every_registered_command_is_implemented() {
     for spec in COMMANDS {
-        if PICKERS.contains(&spec.id) {
+        // Page-text Copy needs a loaded view and egui context, covered by ui_group::text_select.
+        if PICKERS.contains(&spec.id) || spec.id == "edit.copy" {
             continue;
         }
         let mut app = PdfCraftApp::new();
@@ -148,9 +149,19 @@ fn every_registered_command_is_implemented() {
         if spec.id == "view.layout.cover" {
             app.set_option("layout", "two-up").unwrap();
         }
+        // History commands need a real jump (and Back first to make Forward available).
+        if matches!(spec.id, "view.previous_view" | "view.next_view") {
+            app.views[0].go_to_page(1);
+            if spec.id == "view.next_view" {
+                assert!(app.views[0].view_history(false));
+            }
+        }
         let dir = std::env::temp_dir().join(format!("pdfcraft-cmd-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         app.save_override = Some(dir.join("out.pdf").to_string_lossy().into_owned());
+        // A picker the list above misses (file.pin_folder, create.multiple_separate did) must not
+        // open a real file dialog on the desktop running the tests: answer it as a cancel.
+        app.pick_override = Some(Vec::new());
         assert!(app.execute(spec.id), "{} is registered but not implemented (or wrongly disabled)", spec.id);
     }
 }
@@ -296,7 +307,6 @@ fn the_open_recent_menu_lists_files_and_opens_one() {
     h.get_by_label_contains("recent.pdf").click();
     support::wait_until(&mut h, "recent document", |app| app.views.len() == 2 && app.password_prompt.is_none());
     let app = h.state();
-    assert_eq!(app.views.len(), 2, "the recent file opened in a new tab");
     let active = app.active.unwrap();
     assert_eq!(app.session.get(app.views[active].id).and_then(|d| d.path.as_deref()), Some(path.as_str()), "the active tab is the recent file");
     assert_eq!(app.session.get(app.views[active].id).unwrap().bytes.as_slice(), fixture(2).as_slice());
@@ -494,6 +504,36 @@ fn the_about_dialog_shows_the_running_version() {
 }
 
 #[test]
+fn quit_shortcut_requires_exact_modifiers_and_preserves_unsaved_work() {
+    for (os, modifiers) in [
+        (OperatingSystem::Windows, Modifiers { ctrl: true, command: true, ..Default::default() }),
+        (OperatingSystem::Mac, Modifiers { mac_cmd: true, command: true, ..Default::default() }),
+    ] {
+        for (extra, dirty, should_close) in
+            [(Modifiers::ALT, false, false), (Modifiers::SHIFT, false, false), (Modifiers::NONE, false, true), (Modifiers::NONE, true, false)]
+        {
+            let mut h = harness();
+            h.ctx.set_os(os);
+            if dirty {
+                assert!(h.state_mut().execute("page.insert_blank"));
+                h.run_steps(2);
+            }
+            h.event(egui::Event::Key { key: Key::Q, physical_key: None, pressed: true, repeat: false, modifiers: modifiers | extra });
+            h.step();
+            let closes = h.output().viewport_output.values().any(|v| v.commands.contains(&egui::ViewportCommand::Close));
+            assert_eq!(closes, should_close, "{os:?}, extra={extra:?}, dirty={dirty}");
+            if dirty {
+                h.get_by_label("Cancel").click();
+                h.run_steps(2);
+                assert_eq!(h.state().views.len(), 1);
+                assert!(h.state().session.get(h.state().views[0].id).unwrap().dirty);
+                assert!(!h.output().viewport_output.values().any(|v| v.commands.contains(&egui::ViewportCommand::Close)));
+            }
+        }
+    }
+}
+
+#[test]
 fn command_w_closes_empty_macos_window_but_not_an_empty_windows_window() {
     for (os, should_close) in [(OperatingSystem::Mac, true), (OperatingSystem::Windows, false)] {
         let mut h = Harness::builder().with_size(egui::vec2(1000.0, 700.0)).build_eframe(|_cc| PdfCraftApp::new());
@@ -572,6 +612,47 @@ fn palette_ime_chinese_preedit_commit_and_cancel_remain_uninterrupted() {
     assert_eq!(h.state().palette_query, "你");
     interruptions.push(palette_ime_output_requests_interrupt(&h, "cancel preedit"));
     assert!(interruptions.iter().all(|interrupt| !interrupt), "composition interrupted: {interruptions:?}");
+}
+
+#[test]
+fn korean_palette_composition_and_search_preserve_commands_and_shortcuts() {
+    use pdfcraft_ui_egui::i18n::{Lang, tr};
+    let mut h = harness();
+    h.state_mut().set_option("language", "ko").unwrap();
+    h.run_steps(3);
+    let ko = Lang::from_code("ko").unwrap();
+    // Compose a Korean command name through the UI event path rather than ui.type,
+    // which bypasses the IME. This exercises egui; native OS callbacks need separate QA.
+    h.key_press_modifiers(Modifiers::COMMAND, Key::K);
+    h.run_steps(3);
+    for text in ["ㅎ", "회", "회전"] {
+        h.event(egui::Event::Ime(egui::ImeEvent::Preedit { text: text.into(), active_range_chars: Some(0..text.chars().count()) }));
+        h.step();
+        palette_ime_output_is_uninterrupted(&h, text);
+    }
+    h.event(egui::Event::Ime(egui::ImeEvent::Commit("회전".into())));
+    h.step();
+    assert_eq!(h.state().palette_query, "회전");
+    h.get_by_label(tr(ko, "Rotate pages clockwise"));
+    palette_ime_output_is_uninterrupted(&h, "Korean commit");
+    h.event(egui::Event::Ime(egui::ImeEvent::Preedit { text: "ㅎ".into(), active_range_chars: Some(0..1) }));
+    h.step();
+    h.event(egui::Event::Ime(egui::ImeEvent::Preedit { text: String::new(), active_range_chars: None }));
+    h.step();
+    assert_eq!(h.state().palette_query, "회전", "cancelling composition preserves committed text");
+    palette_ime_output_is_uninterrupted(&h, "Korean cancel");
+    h.key_press(Key::Escape);
+    h.run_steps(2);
+    for query in ["Rotate pages clockwise", "page.rotate"] {
+        h.state_mut().set_option("palette", query).unwrap();
+        h.run_steps(3);
+        h.get_by_label(tr(ko, "Rotate pages clockwise"));
+        h.key_press(Key::Escape);
+        h.run_steps(2);
+    }
+    h.key_press_modifiers(Modifiers::COMMAND, Key::Comma);
+    h.run_steps(3);
+    assert_eq!(h.state().dialog, Some(Dialog::Preferences), "the Preferences shortcut stays unchanged in Korean");
 }
 
 #[test]

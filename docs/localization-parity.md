@@ -1,19 +1,34 @@
 # Localization parity
 
+> **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (Korean wording follow-up and reconciliation with upstream main afa8e184; scoped native tests and quality gates verified; readiness and effort estimates not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-14 · **Last updated:** 2026-10-14 · **Change:** minor (Korean desktop catalog, date names and installed Hangul fallback; readiness and hours not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** minor (Vietnamese 100% of current key union; native-speaker community review; twelve-language mean ≈68%) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-14 · **Change:** minor (Italian count after completing its catalog) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 
 Per-language status of PdfCraft's interface against Acrobat Pro's. How translations work and how to
 add a language: [localization.md](localization.md). Summary in [ROADMAP.md](../ROADMAP.md).
 
 ## How this was measured
 
-**2026-10-14 Korean update:** Korean covers all 2,592 distinct source/context keys in the current bundled catalog union. Desktop glyph coverage and production language switching are tested separately. The older per-language percentages and weighted localization estimate below retain their original snapshot; they have not been re-measured for this addition. Web font delivery, localized help and Korean PDF text writing remain separate work.
+Validation on upstream main `afa8e184` plus this local integration: **929 scoped native tests passed, 0 failed, 2 existing tests ignored** (778 library tests in `pdfcraft-engine`, `pdfcraft-forms` and `pdfcraft-ui-egui`; 151 UI integration tests across commands, control, fonts, reload and viewer). The 12 font tests also passed without craft-fonts and with `PDFCRAFT_SYSTEM_FONTS=0`; these repeated mode checks are not added to 929. Ten removed/inverted-condition probes produced the expected assertion failures; source bytes were restored exactly and all positive checks rerun. Strict scoped all-target native Clippy, formatting, asset, layer, partial-parity and scoped wasm32 checks passed. Wasm retains seven pre-existing Rust warnings in five files unchanged from `afa8e184`; the warning about deliberately excluding Noto CJK is the existing asset policy. Validation uses Windows headless UI and synthetic IME events: actual OS Korean IME and macOS/Linux/NixOS runtime remain unverified. Web Hangul font delivery and Korean PDF text writing remain unsupported. The scope excludes a full workspace sweep and upstream CI results.
+
+**2026-10-15 Korean integration:** Korean covers the 2,670-key bundled source/context union after merging upstream main `afa8e184`, adding 78 keys to the 2,592-key 2026-10-14 base. Scoped post-integration catalog, Windows glyph and production language-switch checks passed. The older per-language percentages and upstream weighted localization estimate below retain their recorded snapshots; they have not been re-measured for Korean. Web font delivery, localized help and Korean PDF text writing remain separate work.
+
+The first integrated native run also exposed upstream catalog inconsistencies: two duplicate
+Traditional Chinese rows, 63 missing Vietnamese keys and four missing Lithuanian keys. Removing
+only the duplicate rows and filling the missing keys brought Vietnamese from 2,601 to 2,664 and
+Lithuanian from 2,660 to 2,664. These 63 Vietnamese and four Lithuanian additions are AI-assisted
+and have not had native-speaker review; the community-review records below concern the earlier
+catalogs. A later refresh to upstream main `afa8e184` adds six further keys, bringing Korean,
+Vietnamese and Lithuanian to 2,670 each. Final scoped verification of that refreshed state passed.
 
 - **Strings translated** is measured: the catalogs in `crates/ui-egui/src/i18n/<code>.tsv`, counted
-  as distinct `(context, English)` keys with a non-empty translation. The denominator is the union
-  of keys across all catalogs, **2,143**. Cross-check: of the 1,151 distinct `tl!("…")` literals in
-  `crates/ui-egui/src`, every full catalog covers 96.5–99.4% (7 literals are in no catalog yet).
-  English is built in.
+  as distinct `(context, English)` keys with a non-empty translation. The denominator is
+  the union of keys across all catalogs. The Vietnamese measurement used **2,590** plain keys
+  as of 2026-10-13, plus language-specific context rows such as `theme`/`Appearance`; this is
+  a historical snapshot rather than a claim of coverage for every later key. The twelve-language percentage table below
+  still quotes the **historical 2,143-key snapshot** from 2026-10-10 for every language except
+  Korean and Vietnamese, which are listed against the current 2,670-key union. English is built in.
 - **Not counted:** error details from the engine and the operating system, which are shown in
   English inside a translated frame; there is no translated user documentation or help yet (Acrobat
   ships localized help).
@@ -39,16 +54,20 @@ add a language: [localization.md](localization.md). Summary in [ROADMAP.md](../R
 | Indonesian | `id` | 0 | none | Latin | no | none | no | 3–5 |
 | Japanese | `ja` | 2,123 (99.1%) | dialogs and tooltips; no help | BIZ UDPGothic from craft-fonts; IME patched on macOS, Windows, X11, Wayland; vertical text renders but can't be edited | no | partial | yes | 4–8 |
 | German | `de` | 2,128 (99.3%) | dialogs and tooltips; no help | Latin | community, in progress (#828: terminology, clipping) | partial | yes | 2–4 |
-| Korean | `ko` | 2,592 current keys | menus, dialogs, tooltips and translatable engine wordings; no localized help | Desktop reads installed Hangul faces in every UI family, with alternate Windows/macOS/Unix candidates and a 96 MiB collection limit; no embedded Korean face or web delivery | AI-authored, cross-reviewed; no external native-speaker review | partial | yes | not re-estimated |
-| Vietnamese | `vi` | 0 | none | Latin with stacked diacritics; bundled Inter covers them (not tested) | no | none | no | 3–5 |
+| Korean | `ko` | 2,670 current keys | menus, dialogs, tooltips and translatable engine wordings; no localized help | Desktop reads installed Hangul faces in every UI family, with alternate Windows/macOS/Unix candidates and a 96 MiB collection limit; no embedded Korean face or web delivery | AI-authored, cross-reviewed; no external native-speaker review | partial | yes | not re-estimated |
+| Vietnamese | `vi` | 2,670 current keys | dialogs and tooltips; no help | Latin with stacked diacritics; bundled Inter covers them (fonts test) | community for the earlier catalog; 63 AI-assisted additions await native review | partial | no | 2–4 |
 
-**Localization dimension ≈ 59%**: the mean over the twelve, counting a catalog's percentage but only
-60% for Chinese and Arabic until their script problems are fixed, and 0 for the four missing
-languages. **≈ 60–115 h** to bring all twelve to `full`, of which ≈ 35–60 h is engineering (Hans
-face, RTL layout, bidi text) and the rest catalogs and fixes; native-speaker review needs humans.
+**Localization dimension ≈ 68% (historical upstream snapshot)**: the mean over the twelve,
+counting a catalog's percentage but only 60% for Chinese and Arabic until their script problems
+are fixed. That snapshot counted Hindi, Indonesian and Korean as 0; Vietnamese moved from 0%
+to 100% in that mean (59% → 68%). Korean now has desktop coverage, but the weighted figure has
+not been re-measured for this addition. **≈ 55–110 h**
+to bring all twelve to `full`, of which ≈ 35–60 h is engineering (Hans face, RTL layout, bidi text)
+and the rest catalogs and fixes; native-speaker review needs humans.
 
 No language is `full` except English: every catalog leaves engine error details in English, and
-none has translated help.
+none has translated help. Vietnamese's **To `full`** hours are therefore residual help/docs polish
+(catalog and script work are already done), not missing UI strings.
 
 ## Other shipped languages
 
@@ -61,22 +80,26 @@ none has translated help.
 | Telugu | `te` | 2,058 (96.0%) | partial (the release-pinned craft-fonts has no Telugu face yet) | no |
 | Hungarian | `hu` | 2,126 (99.2%) | partial | yes |
 | Ukrainian | `uk` | 2,142 (100%) | partial | yes |
-| Italian | `it` | 2,130 (99.4%) | partial | yes |
+| Italian | `it` | 2,528 entries (every key of the other catalogs that the code looks up) | partial | yes |
 | Kazakh | `kk` | 2,327 entries | partial | no |
 | Polish | `pl` | 2,287 entries | partial | yes |
 | Slovenian | `sl` | 2,324 entries | partial | no |
 | Greek | `el` | 2,341 entries | partial | no |
 | Turkish | `tr` | 2,313 entries | partial | yes |
-| Lithuanian | `lt` | 2,578 entries | partial; community native-speaker review ([#1401](https://github.com/storytold/pdfcraft/pull/1401)) | no |
+| Lithuanian | `lt` | 2,670 current keys | partial; community native-speaker review of the earlier catalog ([#1401](https://github.com/storytold/pdfcraft/pull/1401)); four AI-assisted additions await native review | no |
 
-**14 other languages** ship (22 catalogs plus English, 23 interface languages in Preferences).
-The entry counts without percentages were measured on 2026-10-12; they are not percentages of the older 2,143-key snapshot above. Their presence does not imply a detailed linguistic or runtime review.
+**14 other languages** ship (23 catalogs plus English = **24** interface languages in Preferences).
+The entry counts without percentages were measured on 2026-10-12–13 (Italian on 2026-10-14; Korean, Vietnamese and Lithuanian on 2026-10-15); they are not percentages of the older 2,143-key snapshot above. Their presence does not imply a detailed linguistic or runtime review. Vietnamese is shipped here but not by Acrobat.
 Acrobat languages PdfCraft lacks: Danish, Dutch, Finnish, Norwegian, Swedish, Hebrew.
 
 ## Revision history
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-15 | patch | The first integrated native run exposed two duplicate Traditional Chinese rows and missing Vietnamese/Lithuanian union keys. Removed only the duplicate rows and added 63 Vietnamese/four Lithuanian translations (both 2,664 keys at that baseline repair); these additions are AI-assisted and await native review. The later main `afa8e184` refresh brings both to 2,670. Final scoped integrated verification passed on `afa8e184`. |
+| 2026-10-15 | minor | Reconciled Korean and Vietnamese registrations (23 catalogs plus English), retained Italian completion and historical estimates, and recorded the 23-string Korean wording follow-up. Post-integration scoped verification passed on `afa8e184`. |
 | 2026-10-14 | minor | Korean desktop catalog covers 2,592 current keys; date names and installed interface-only Hangul fallback added. Follow-up corrects 19 wordings and expands installed-font candidates with a 96 MiB Hangul collection cap, retaining Chinese font priority. Web font delivery, localized help and Korean PDF writing remain separate. Weighted readiness and hours not re-measured. |
+| 2026-10-13 | minor | Vietnamese (`vi`) catalog: 2,591 entries (100% of current key union + `theme`/`Appearance`); twelve-language mean ≈ 68%; native-speaker community review; registered with `plural_none` |
+| 2026-10-14 | minor | Italian: 2,528 entries after adding the 201 keys the other catalogs had and the code looks up |
 | 2026-10-12 | minor | Added current counts for Kazakh, Polish, Slovenian, Greek, Turkish and Lithuanian; retained existing language assessments and the original percentage snapshot |
 | 2026-10-10 | major | Created. Catalog counts measured from `crates/ui-egui/src/i18n/*.tsv` against the 2,143-key union; Acrobat's localizations from its bundle's `.lproj` and Sequences folder names |

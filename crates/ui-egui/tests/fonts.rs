@@ -250,6 +250,45 @@ fn system_fallback_covers_telugu() {
     assert!(layout_widths(&mut fonts, TELUGU).iter().all(|w| w.is_finite() && *w > 0.0));
 }
 
+/// On a machine with installed Sinhala and Tamil fonts, the installed definitions include them
+/// and Sinhala and Tamil text, such as a file name, has glyphs instead of boxes (#1688). macOS
+/// always ships Sinhala Sangam MN and Tamil Sangam MN, so there the test never skips.
+#[test]
+fn system_fallback_covers_sinhala_and_tamil() {
+    let windows_fonts = std::env::var_os("WINDIR")
+        .or_else(|| std::env::var_os("SystemRoot"))
+        .map_or_else(|| std::path::PathBuf::from(r"C:\Windows"), std::path::PathBuf::from)
+        .join("Fonts");
+    for (name, text, windows_candidates) in [
+        (theme::SYSTEM_SINHALA_FALLBACK, "ශ්‍රී ලංකා ගොනුව", ["Nirmala.ttc", "Nirmala.ttf", "iskpota.ttf"]),
+        (theme::SYSTEM_TAMIL_FALLBACK, "தமிழ் கோப்பு", ["Nirmala.ttc", "Nirmala.ttf", "latha.ttf"]),
+    ] {
+        assert!(!theme::font_definitions().font_data.contains_key(name));
+        let defs = theme::installed_font_definitions(theme::CjkPreference::Default);
+        let off = std::env::var_os("PDFCRAFT_SYSTEM_FONTS").is_some_and(|v| v == "0");
+        if off {
+            assert!(!defs.font_data.contains_key(name), "{name}: installed faces are disabled");
+            assert!(defs.families.values().all(|stack| !stack.iter().any(|n| n == name)));
+            continue;
+        }
+        let required = cfg!(target_os = "macos") || cfg!(windows) && windows_candidates.iter().any(|f| windows_fonts.join(f).is_file());
+        if !defs.font_data.contains_key(name) && !required {
+            eprintln!("skipping {name}: no installed fallback font");
+            assert!(defs.families.values().all(|stack| !stack.iter().any(|n| n == name)));
+            continue;
+        }
+        assert!(defs.font_data.contains_key(name), "{name}: an installed face was not registered");
+        for (family, stack) in &defs.families {
+            assert_eq!(stack.iter().filter(|n| *n == name).count(), 1, "{family:?}: {stack:?}");
+        }
+        let mut fonts = Fonts::new(TextOptions::default(), defs);
+        for id in families() {
+            assert!(fonts.has_glyphs(&id, text), "{id:?} lacks {text}");
+        }
+        assert!(layout_widths(&mut fonts, text).iter().all(|w| w.is_finite() && *w > 0.0));
+    }
+}
+
 /// The Han characters of a catalog's translations.
 fn catalog_han(catalog: &str) -> String {
     let mut han: Vec<char> = catalog
@@ -293,6 +332,13 @@ fn chinese_ui_uses_an_installed_chinese_face() {
             if let Some(korean) = stack.iter().position(|n| n == theme::SYSTEM_KOREAN_FALLBACK) {
                 assert!(system < korean, "Chinese keeps its own face before shared Han glyphs in Korean: {family:?}: {stack:?}");
             }
+            for script in
+                [theme::SYSTEM_DEVANAGARI_FALLBACK, theme::SYSTEM_TELUGU_FALLBACK, theme::SYSTEM_SINHALA_FALLBACK, theme::SYSTEM_TAMIL_FALLBACK]
+            {
+                if let Some(index) = stack.iter().position(|n| n == script) {
+                    assert!(system < index, "Chinese keeps its own face before installed script fallbacks: {family:?}: {stack:?}");
+                }
+            }
         }
         let han = catalog_han(catalog);
         assert!(han.contains('欢') || han.contains('說'), "{cjk:?}");
@@ -324,9 +370,10 @@ fn ui_fonts_work_without_craft_fonts() {
     theme::install_fonts(&ctx);
 }
 
-/// Latin- and Cyrillic-script catalogs (Czech, Brazilian Portuguese, German, Spanish, French, Russian, Bulgarian, Hungarian, Ukrainian, Italian, Slovene) are drawn entirely by the app's own faces
-/// (Inter, JetBrains Mono): no letter falls through to egui's defaults or a CJK fallback. (egui's
-/// `has_glyphs` can't answer this: with only the primary face it is also the replacement face.)
+/// Latin- and Cyrillic-script catalogs are covered by each Inter UI face and the bundled
+/// monospace stack. JetBrains Mono remains first there; egui's bundled Hack/Ubuntu faces
+/// cover letters such as Bulgarian ѝ that it lacks. Installed system fonts are not involved.
+/// Check real cmap entries: `has_glyphs` on a lone face can count its replacement glyph.
 #[test]
 fn primary_ui_fonts_cover_latin_and_cyrillic_catalogs() {
     use skrifa::MetadataProvider as _;
@@ -347,6 +394,7 @@ fn primary_ui_fonts_cover_latin_and_cyrillic_catalogs() {
         ("tr", include_str!("../src/i18n/tr.tsv")),
         ("sl", include_str!("../src/i18n/sl.tsv")),
         ("lt", include_str!("../src/i18n/lt.tsv")),
+        ("vi", include_str!("../src/i18n/vi.tsv")),
     ] {
         let mut text = String::from("áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽãõçâêôàÃÕÇÂÊÔÀñÑüÜäÄöÖőűß„“¿¡«»…ґҐєЄіІїЇәғқңөұүһӘҒҚҢӨҰҮҺ");
         for line in catalog.lines().filter(|l| !l.starts_with('#')) {
@@ -354,7 +402,7 @@ fn primary_ui_fonts_cover_latin_and_cyrillic_catalogs() {
                 text.extend(translation.chars().filter(|c| !c.is_whitespace()));
             }
         }
-        for name in ["Inter", "Inter-Medium", "Inter-SemiBold", "JetBrainsMono"] {
+        for name in ["Inter", "Inter-Medium", "Inter-SemiBold"] {
             let data = &defs.font_data[name];
             let font = skrifa::FontRef::from_index(&data.font, data.index).unwrap();
             let charmap = font.charmap();
@@ -363,5 +411,18 @@ fn primary_ui_fonts_cover_latin_and_cyrillic_catalogs() {
             missing.dedup();
             assert!(missing.is_empty(), "{code}: {name} lacks {missing:?}");
         }
+        let mono = &defs.families[&FontFamily::Monospace];
+        assert_eq!(mono.first().map(String::as_str), Some("JetBrainsMono"), "the app's monospace face remains first");
+        let mono_faces: Vec<_> = mono
+            .iter()
+            .map(|name| {
+                let data = &defs.font_data[name];
+                skrifa::FontRef::from_index(&data.font, data.index).unwrap()
+            })
+            .collect();
+        let mut missing: Vec<char> = text.chars().filter(|c| !mono_faces.iter().any(|font| font.charmap().map(*c).is_some())).collect();
+        missing.sort_unstable();
+        missing.dedup();
+        assert!(missing.is_empty(), "{code}: bundled Monospace stack {mono:?} lacks {missing:?}");
     }
 }
