@@ -857,6 +857,109 @@ fn an_earlier_revision_opens_from_document_properties() {
     let doc = s.session.get(s.views[s.active.unwrap()].id).unwrap();
     assert_eq!(doc.name, "updated (revision 1).pdf");
     assert_eq!(doc.info_value("Title"), None, "as it was before the update");
+    // A repeat reuses the revision tab instead of opening another identical one.
+    let views = s.views.len();
+    let ids: Vec<_> = h.state().views.iter().map(|v| v.id).collect();
+    let original = {
+        let s = h.state();
+        ids.iter().position(|id| s.session.get(*id).is_some_and(|d| d.name == "updated.pdf")).unwrap()
+    };
+    h.state_mut().active = Some(original);
+    h.state_mut().open_revision(1);
+    h.run_steps(1);
+    let s = h.state();
+    assert_eq!(s.views.len(), views);
+    assert!(
+        s.views[s.active.unwrap()]
+            .snapshot
+            .as_ref()
+            .is_some_and(|snap| snap.kind == pdfcraft_ui_egui::canvas::SnapshotKind::Revision && snap.revision == 1)
+    );
+    // An unknown revision errors without opening a tab.
+    h.state_mut().active = Some(original);
+    h.state_mut().open_revision(99);
+    h.run_steps(1);
+    let s = h.state();
+    assert_eq!(s.views.len(), views);
+    assert!(h.state().toast.as_ref().is_some_and(|t| t.0.starts_with("Couldn't open revision 99")), "unknown revisions error without opening a tab");
+    // Another tab over the same original shares the snapshot: b.pdf's first revision is
+    // byte-identical to updated.pdf's (incremental saves append), so it reuses the tab.
+    let ids: Vec<_> = h.state().views.iter().map(|v| v.id).collect();
+    let other = {
+        let s = h.state();
+        ids.iter().position(|id| s.session.get(*id).is_some_and(|d| d.name == "b.pdf")).unwrap()
+    };
+    h.state_mut().active = Some(other);
+    h.state_mut().open_revision(1);
+    h.run_steps(1);
+    let s = h.state();
+    assert_eq!(s.views.len(), views);
+    assert!(
+        s.views[s.active.unwrap()]
+            .snapshot
+            .as_ref()
+            .is_some_and(|snap| snap.kind == pdfcraft_ui_egui::canvas::SnapshotKind::Revision && snap.revision == 1)
+    );
+}
+
+#[test]
+fn korean_historical_snapshot_banners_preserve_source_and_revision() {
+    use pdfcraft_engine::Edit;
+    use pdfcraft_ui_egui::canvas::SnapshotKind;
+
+    // Placeholder-looking text in a file name must remain literal in both banners.
+    const SOURCE: &str = "월간 보고서 {rev} {from}.pdf";
+    let mut h = harness();
+    h.state_mut().set_option("language", "ko").unwrap();
+    let (original, signed_len) = {
+        let s = h.state_mut();
+        let id = s.views[s.active.unwrap()].id;
+        s.session.apply(id, Edit::SetInfo { key: "Title".into(), value: "개정된 원본".into() }).unwrap();
+        let bytes = s.session.save_bytes(id).unwrap();
+        let len = bytes.len();
+        s.open_bytes(SOURCE, None, bytes.to_vec()).unwrap();
+        (s.active.unwrap(), len)
+    };
+    let original_id = h.state().views[original].id;
+    let original_bytes = h.state().session.get(original_id).unwrap().bytes.clone();
+    for (kind, revision) in [(SnapshotKind::Revision, 1), (SnapshotKind::SignedVersion, 2)] {
+        h.state_mut().active = Some(original);
+        if kind == SnapshotKind::Revision {
+            h.state_mut().open_revision(revision);
+        } else {
+            // Exercise the signed-version viewer action with valid synthetic covered bytes;
+            // cryptographic signature validation is covered by the signing integration tests.
+            h.state_mut().view_signed_version(signed_len, revision);
+        }
+        h.run_steps(3);
+        let copy = h.state().active.unwrap();
+        assert_ne!(copy, original, "a historical version opens in its own document");
+        let view = &h.state().views[copy];
+        let snapshot = view.snapshot.as_ref().expect("the production action marks its snapshot");
+        assert_eq!((snapshot.kind, snapshot.revision, snapshot.from.as_str()), (kind, revision, SOURCE));
+        assert!(h.state().session.get(view.id).unwrap().path.is_none());
+        let banner = if kind == SnapshotKind::SignedVersion {
+            format!("“{SOURCE}”의 서명된 버전(개정본 2)을 보고 있습니다. 당시 상태를 담은 사본이므로 여기서 변경해도 원본에는 영향을 주지 않습니다.")
+        } else {
+            format!("“{SOURCE}”의 1번째 개정본을 보고 있습니다. 당시 상태를 담은 사본이므로 여기서 변경해도 원본에는 영향을 주지 않습니다.")
+        };
+        // Inspect the real canvas notice, through its accessibility label, after a Korean frame.
+        h.get_by_label(&banner);
+        assert!(h.query_by_label_contains("You are viewing").is_none());
+        if let Ok(dir) = std::env::var("PDFCRAFT_PRIVATE_KOREAN_QA") {
+            h.render().unwrap().save(format!("{dir}/historical-snapshot-{revision}.png")).unwrap();
+        }
+        assert!(h.state_mut().apply_edit(Edit::SetInfo { key: "Title".into(), value: "사본에서만 변경".into() }));
+        h.run_steps(2);
+        h.get_by_label(&banner);
+        let s = h.state();
+        let edited = s.session.get(s.views[copy].id).unwrap();
+        assert!(edited.dirty, "the snapshot is an editable copy");
+        assert_eq!(edited.info_value("Title").as_deref(), Some("사본에서만 변경"));
+        let source = s.session.get(original_id).unwrap();
+        assert_eq!(source.info_value("Title").as_deref(), Some("개정된 원본"), "editing the copy leaves the original alone");
+        assert_eq!(source.bytes, original_bytes, "the source byte stream is unchanged");
+    }
 }
 
 #[test]
