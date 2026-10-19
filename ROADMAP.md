@@ -2,7 +2,7 @@
 
 **Stage: alpha** · next: beta, ~25% (ready for real work 50% → 75%) and ~400–700 h away
 
-> **Last reviewed:** 2026-10-19 · **Last updated:** 2026-10-19 · **Change:** patch (Korean PR refreshed on main 43550c44; 2,674 current catalog keys; measured scoped verification; estimates unchanged) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
+> **Last reviewed:** 2026-10-19 · **Last updated:** 2026-10-19 · **Change:** patch (Korean CodeRabbit follow-up on c897c15c; font-limit documentation and failure-safe test cleanup; scoped UI verification; estimates unchanged) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (M7: the Edit text caret is as tall as the row it is on; estimates unchanged) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (M6: CSV tab-containing headers; estimates unchanged)
 > **Last reviewed:** 2026-10-18 · **Last updated:** 2026-10-18 · **Change:** minor (M3, #3149: discard render demand after page geometry changes and check the GPU texture limit before upload; estimates unchanged)
@@ -174,6 +174,8 @@ Ranked; detail and the full milestone table in [docs/roadmap.md](docs/roadmap.md
 | 8 | 1.0 polish: performance, right-to-left, missing languages, keyboard-only (M14) | 55–95 |
 
 ## Progress log
+
+- **2026-10-19 (M14, Korean CodeRabbit follow-up):** CodeRabbit follow-up on `c897c15c`: correct the Korean/Chinese 96 MiB font-limit description and remove the Korean file-open fixture directory during test unwinding after the harness drops. UI library/control checks: 533 passed, 0 failed, 1 ignored; a removed-cleanup mutation compiled and failed its expected assertion, then source bytes were restored exactly. Estimates unchanged. The earlier 1,405-test result remains the broader integration record at `c897c15c`; this follow-up reruns the UI library/control scope. Build cache and temporary files stay on G:. Scope and limits: [localization.md](docs/localization.md#korean).
 
 - **2026-10-19 (M14, 43550c44 conflict refresh):** Korean PR refreshed on main `43550c44`; Korean, Lithuanian and Vietnamese each cover 2,674 keys. 1,405 scoped native tests passed, 0 failed, 2 ignored; 3 behavioral assertion probes verified with exact source restoration. Earlier verification retains its stated bases; estimates unchanged. Scope and limits: [localization.md](docs/localization.md#korean).
 

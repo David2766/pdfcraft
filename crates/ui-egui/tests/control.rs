@@ -357,14 +357,46 @@ fn language_switch_preserves_document_and_command_ids() {
     assert_eq!(ok(&mut h, &c, "ui.state", json!({}))["language"], "en");
 }
 
+struct TemporaryDirectory(std::path::PathBuf);
+
+impl TemporaryDirectory {
+    fn new() -> Self {
+        let unique = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos();
+        let path = std::env::temp_dir().join(format!("pdfcraft-korean-open-{}-{unique}", std::process::id()));
+        std::fs::create_dir(&path).unwrap();
+        Self(path)
+    }
+}
+
+impl Drop for TemporaryDirectory {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+#[test]
+fn korean_open_temporary_directory_is_removed_during_unwinding() {
+    let directory = TemporaryDirectory::new();
+    let path = directory.0.clone();
+    let result = std::panic::catch_unwind(move || {
+        let temporary = directory;
+        let file = temporary.0.join("fixture.pdf");
+        std::fs::write(&file, fixture(2)).unwrap();
+        assert!(!file.is_file(), "synthetic assertion failure after writing the fixture");
+    });
+    let payload = result.expect_err("the synthetic assertion must fail");
+    let message = payload.downcast_ref::<String>().map(String::as_str).or_else(|| payload.downcast_ref::<&str>().copied());
+    assert!(message.is_some_and(|value| value.contains("synthetic assertion failure after writing the fixture")));
+    assert!(!path.try_exists().unwrap(), "temporary directory survived assertion failure: {}", path.display());
+}
+
 #[test]
 fn korean_switch_preserves_filename_path_document_and_command_ids() {
+    // Locals drop in reverse order: release the harness before removing its input directory.
+    let dir = TemporaryDirectory::new();
     let (mut h, c) = harness();
     let name = "한글 보고서{n}.pdf";
-    let unique = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos();
-    let dir = std::env::temp_dir().join(format!("pdfcraft-korean-open-{}-{unique}", std::process::id()));
-    std::fs::create_dir(&dir).unwrap();
-    let file = dir.join(name);
+    let file = dir.0.join(name);
     std::fs::write(&file, fixture(2)).unwrap();
     let path = file.to_string_lossy().into_owned();
     let count = h.state().views.len();
@@ -406,9 +438,6 @@ fn korean_switch_preserves_filename_path_document_and_command_ids() {
     let ko = pdfcraft_ui_egui::i18n::Lang::from_code("ko").unwrap();
     h.get_by_role_and_label(egui::accesskit::Role::Tab, pdfcraft_ui_egui::i18n::tr(ko, "Inspector"));
     assert!(h.query_by_role_and_label(egui::accesskit::Role::Tab, "Inspector").is_none());
-    drop(h);
-    std::fs::remove_file(&file).unwrap();
-    std::fs::remove_dir(&dir).unwrap();
 }
 
 #[test]
