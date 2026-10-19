@@ -1,7 +1,9 @@
 # Where PdfCraft falls short of Acrobat Pro
 
+> **Last reviewed:** 2026-10-19 · **Last updated:** 2026-10-19 · **Change:** patch (Korean PR refreshed on main 43550c44; 2,674 current catalog keys; measured scoped verification; estimates unchanged) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-16 · **Last updated:** 2026-10-16 · **Change:** patch (Korean PR refreshed on main f0c9901c; 2,672 catalog keys and measured scoped verification; upstream progress and historical evidence retained; estimates not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (gap 12: reading order is scored, not just word F1) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
+> **Last reviewed:** 2026-10-14 · **Last updated:** 2026-10-14 · **Change:** minor (M1: raw-deflate fallback preserves decoding-limit errors; estimates unchanged) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (Korean PR conflict refresh on upstream main dc41044b; common catalog and regression repairs retained from main; scoped verification repeated; readiness and effort estimates not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-14 · **Last updated:** 2026-10-14 · **Change:** minor (Korean desktop catalog, date names and installed Hangul fallback; readiness and hours not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-12 · **Last updated:** 2026-10-13 · **Change:** minor (gap 14: Vietnamese catalog shipped; Hindi/Indonesian/Korean and Arabic RTL remain) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
@@ -143,6 +145,9 @@ update the numbers.
   (#1398). Another batch keeps a spaced XFA radio value in the datasets (#1319), replaces only the
   selected pages when they are not adjacent (#1305), and leaves unrelated page streams in place
   when a figure is marked decorative (#1324). The rest of the backlog is untriaged.
+- **Fix verified (2026-10-14):** raw-deflate fallback returns a decoding-limit error instead of
+  accepting an empty partial stream when a misleading zlib header triggers a retry. Synthetic
+  filter and COS stream regressions cover refusal at the limit and decoding within it.
 - **Impact:** every one is a user who lost trust. Crash reports outrank feature work
   (`AGENTS.md` §4).
 - **Estimate:** 45–80 h (≈ 0.2–0.4 h per issue). **Doc:** this file.
@@ -297,7 +302,7 @@ update the numbers.
 - **Missing:** a right-to-left layout (panels, menus, alignment), bidirectional text in the text
   layout itself (wrapping, typed text); catalogs for Hindi and Indonesian (Acrobat ships neither;
   it ships Korean and ships Arabic in its Middle East edition).
-  Vietnamese ships as a catalog (`vi`, 2,672 current entries), but stays
+  Vietnamese ships as a catalog (`vi`, 2,674 current entries), but stays
   `partial` like other non-English languages (no translated help; engine/OS details stay English).
   Its 63 integration repairs are AI-assisted and await native-speaker review.
   Korean ships a desktop catalog, date names and installed interface-only Hangul fallback;
@@ -384,8 +389,10 @@ update the numbers.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-19 | patch | Korean PR refreshed on main `43550c44`; Korean, Lithuanian and Vietnamese each cover 2,674 keys. 1,405 scoped native tests passed, 0 failed, 2 ignored; 3 behavioral assertion probes verified with exact source restoration. Earlier verification retains its stated bases; estimates unchanged. Scope and limits: [localization.md](localization.md#korean). |
 | 2026-10-16 | patch | Korean PR refreshed on `f0c9901c`; two snapshot notices bring the catalog to 2,672 keys. 1,325 scoped native tests passed, 2 ignored; 2 behavioral assertion probes verified with exact source restoration. Earlier verification retains its stated bases. Estimates unchanged. |
 | 2026-10-15 | minor | Gap 12: the text oracle scores reading order as well as word F1, which is a bag of words and cannot see order; the first measurement separated 18 improvements from 6 regressions in a change F1 called unchanged on 26 of 29 files. Estimates unchanged. |
+| 2026-10-14 | minor | M1: raw-deflate fallback preserves decoding-limit errors in strict and tolerant decoding; synthetic filter and COS stream regressions. Estimates unchanged. |
 | 2026-10-15 | patch | Refreshed the Korean PR against `dc41044b`, retaining upstream common catalog and page-draft/Monospace regressions. 929 scoped native tests passed, 2 ignored; three batched assertion probes verified. Korean retains 2,670 keys; historical `afa8e184` verification and estimates are unchanged. |
 | 2026-10-15 | minor | Reconciled Korean desktop coverage with the upstream Vietnamese catalog. Gap 14 now records Hindi/Indonesian catalogs, Arabic RTL and Korean web font delivery as remaining work. Post-integration scoped verification passed on `afa8e184`; estimates unchanged. |
 | 2026-10-14 | minor | Korean desktop catalog covers 2,592 current keys; date names and installed interface-only Hangul fallback added. Web font delivery, localized help and Korean PDF writing remain separate. Weighted readiness and hours not re-measured. |

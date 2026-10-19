@@ -1,5 +1,6 @@
 # Localization parity
 
+> **Last reviewed:** 2026-10-19 · **Last updated:** 2026-10-19 · **Change:** patch (Korean PR refreshed on main 43550c44; 2,674 current catalog keys; measured scoped verification; estimates unchanged) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-16 · **Last updated:** 2026-10-16 · **Change:** patch (Korean PR refreshed on main f0c9901c; 2,672 catalog keys and measured scoped verification; upstream progress and historical evidence retained; estimates not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-15 · **Last updated:** 2026-10-15 · **Change:** minor (Korean PR conflict refresh on upstream main dc41044b; common catalog and regression repairs retained from main; scoped verification repeated; readiness and effort estimates not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
 > **Last reviewed:** 2026-10-14 · **Last updated:** 2026-10-14 · **Change:** minor (Korean desktop catalog, date names and installed Hangul fallback; readiness and hours not re-measured) · **Target:** Adobe Acrobat Pro (Acrobat DC, continuous track 26.002.21931, macOS)
@@ -11,7 +12,9 @@ add a language: [localization.md](localization.md). Summary in [ROADMAP.md](../R
 
 ## How this was measured
 
-**Current main refresh (`f0c9901c`, 2026-10-16).** The 2026-10-16 refresh integrates main `f0c9901c`, preserves upstream renderer/font, signature-overlay and Nix workflow progress, and adds the two Korean snapshot notices (2,672 keys total). User document names and revision placeholders remain literal. Measured Windows checks: **1,325 scoped native tests passed, 0 failed, 2 ignored** across 5 library suites and 6 UI integration targets. 2 current targeted removed/inverted-condition probes failed their expected behavioral assertions; source bytes were restored exactly before positive reruns. Strict scoped all-target native Clippy, formatting, assets, layers, partial parity and wasm32 compilation passed; wasm retains 7 Rust warnings. Repeated font modes are separate from the native aggregate, and missing-font early returns are harness passes rather than glyph-coverage evidence. The older 929-test records describe their stated dc41044b/afa8e184 bases. These are local checks, without full-workspace, upstream CI, release rebuild, native OS IME or macOS/Linux/Nix runtime claims. Web Hangul font delivery and Korean PDF writing remain separate unsupported work. Readiness and effort estimates have not been re-measured.
+**Current main refresh (`43550c44`, 2026-10-19).** Korean PR refreshed on main `43550c44`; Korean, Lithuanian and Vietnamese each cover 2,674 keys. 1,405 scoped native tests passed, 0 failed, 2 ignored; 3 behavioral assertion probes verified with exact source restoration. Earlier verification retains its stated bases; estimates unchanged. Full scope and limits: [localization.md](localization.md#korean).
+
+**Historical main refresh (`f0c9901c`, 2026-10-16).** The 2026-10-16 refresh integrates main `f0c9901c`, preserves upstream renderer/font, signature-overlay and Nix workflow progress, and adds the two Korean snapshot notices (2,672 keys total). User document names and revision placeholders remain literal. Measured Windows checks: **1,325 scoped native tests passed, 0 failed, 2 ignored** across 5 library suites and 6 UI integration targets. 2 current targeted removed/inverted-condition probes failed their expected behavioral assertions; source bytes were restored exactly before positive reruns. Strict scoped all-target native Clippy, formatting, assets, layers, partial parity and wasm32 compilation passed; wasm retains 7 Rust warnings. Repeated font modes are separate from the native aggregate, and missing-font early returns are harness passes rather than glyph-coverage evidence. The older 929-test records describe their stated dc41044b/afa8e184 bases. These are local checks, without full-workspace, upstream CI, release rebuild, native OS IME or macOS/Linux/Nix runtime claims. Web Hangul font delivery and Korean PDF writing remain separate unsupported work. Readiness and effort estimates have not been re-measured.
 
 **Historical main refresh (`dc41044b`, 2026-10-15).** Lithuanian, Vietnamese and Traditional Chinese now use the exact upstream catalogs from #2510/#2414; the earlier common repairs are already on main. Korean remains unchanged at 2,670 keys. The 2026-10-15 conflict refresh on upstream main `dc41044b` recorded **929 scoped native tests passed, 0 failed, 2 existing tests ignored** across the same three libraries and five UI integration targets. Repeated font checks with installed fonts disabled and without craft-fonts passed; optional missing-font checks may return early and are not added to the native total. Three mutation probes were compiled together, each failed its expected targeted assertion, and source bytes were restored exactly before positive reruns. Strict scoped native all-target Clippy, formatting and scoped wasm32 compilation passed; wasm retains existing warnings. Actual OS Korean IME, macOS/Linux/NixOS runtime, web Hangul font delivery and Korean PDF text writing remain unverified or unsupported as previously recorded. This is local scoped verification, without a full workspace sweep or upstream CI claim.
 
@@ -33,7 +36,7 @@ Vietnamese and Lithuanian to 2,670 each. Final scoped verification of that refre
   as of 2026-10-13, plus language-specific context rows such as `theme`/`Appearance`; this is
   a historical snapshot rather than a claim of coverage for every later key. The twelve-language percentage table below
   still quotes the **historical 2,143-key snapshot** from 2026-10-10 for every language except
-  Korean and Vietnamese, which are listed against the current 2,672-key union. English is built in.
+  Korean and Vietnamese, which are listed against the current 2,674-key union. English is built in.
 - **Not counted:** error details from the engine and the operating system, which are shown in
   English inside a translated frame; there is no translated user documentation or help yet (Acrobat
   ships localized help).
@@ -59,8 +62,8 @@ Vietnamese and Lithuanian to 2,670 each. Final scoped verification of that refre
 | Indonesian | `id` | 0 | none | Latin | no | none | no | 3–5 |
 | Japanese | `ja` | 2,123 (99.1%) | dialogs and tooltips; no help | BIZ UDPGothic from craft-fonts; IME patched on macOS, Windows, X11, Wayland; vertical text renders but can't be edited | no | partial | yes | 4–8 |
 | German | `de` | 2,128 (99.3%) | dialogs and tooltips; no help | Latin | community, in progress (#828: terminology, clipping) | partial | yes | 2–4 |
-| Korean | `ko` | 2,672 current keys | menus, dialogs, tooltips and translatable engine wordings; no localized help | Desktop reads installed Hangul faces in every UI family, with alternate Windows/macOS/Unix candidates and a 96 MiB collection limit; no embedded Korean face or web delivery | AI-authored, cross-reviewed; no external native-speaker review | partial | yes | not re-estimated |
-| Vietnamese | `vi` | 2,672 current keys | dialogs and tooltips; no help | Latin with stacked diacritics; bundled Inter covers them (fonts test) | community for the earlier catalog; 63 AI-assisted additions await native review | partial | no | 2–4 |
+| Korean | `ko` | 2,674 current keys | menus, dialogs, tooltips and translatable engine wordings; no localized help | Desktop reads installed Hangul faces in every UI family, with alternate Windows/macOS/Unix candidates and a 96 MiB collection limit; no embedded Korean face or web delivery | AI-authored, cross-reviewed; no external native-speaker review | partial | yes | not re-estimated |
+| Vietnamese | `vi` | 2,674 current keys | dialogs and tooltips; no help | Latin with stacked diacritics; bundled Inter covers them (fonts test) | community for the earlier catalog; 63 AI-assisted additions await native review | partial | no | 2–4 |
 
 **Localization dimension ≈ 68% (historical upstream snapshot)**: the mean over the twelve,
 counting a catalog's percentage but only 60% for Chinese and Arabic until their script problems
@@ -91,16 +94,17 @@ none has translated help. Vietnamese's **To `full`** hours are therefore residua
 | Slovenian | `sl` | 2,324 entries | partial | no |
 | Greek | `el` | 2,341 entries | partial | no |
 | Turkish | `tr` | 2,313 entries | partial | yes |
-| Lithuanian | `lt` | 2,672 current keys | partial; community native-speaker review of the earlier catalog ([#1401](https://github.com/storytold/pdfcraft/pull/1401)); four AI-assisted additions await native review | no |
+| Lithuanian | `lt` | 2,674 current keys | partial; community native-speaker review of the earlier catalog ([#1401](https://github.com/storytold/pdfcraft/pull/1401)); four AI-assisted additions await native review | no |
 
 **14 other languages** ship (23 catalogs plus English = **24** interface languages in Preferences).
-The entry counts without percentages were measured on 2026-10-12–13 (Italian on 2026-10-14; Korean, Vietnamese and Lithuanian on 2026-10-16); they are not percentages of the older 2,143-key snapshot above. Their presence does not imply a detailed linguistic or runtime review. Vietnamese is shipped here but not by Acrobat.
+The entry counts without percentages were measured on 2026-10-12–13 (Italian on 2026-10-14; Korean, Vietnamese and Lithuanian on 2026-10-19); they are not percentages of the older 2,143-key snapshot above. Their presence does not imply a detailed linguistic or runtime review. Vietnamese is shipped here but not by Acrobat.
 Acrobat languages PdfCraft lacks: Danish, Dutch, Finnish, Norwegian, Swedish, Hebrew.
 
 ## Revision history
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-19 | patch | Korean PR refreshed on main `43550c44`; Korean, Lithuanian and Vietnamese each cover 2,674 keys. 1,405 scoped native tests passed, 0 failed, 2 ignored; 3 behavioral assertion probes verified with exact source restoration. Earlier verification retains its stated bases; estimates unchanged. Scope and limits: [localization.md](localization.md#korean). |
 | 2026-10-16 | patch | Korean PR refreshed on `f0c9901c`; two snapshot notices bring the catalog to 2,672 keys. 1,325 scoped native tests passed, 2 ignored; 2 behavioral assertion probes verified with exact source restoration. Earlier verification retains its stated bases. Estimates unchanged. |
 | 2026-10-15 | patch | Refreshed the Korean PR against `dc41044b`, retaining upstream common catalog and page-draft/Monospace regressions. 929 scoped native tests passed, 2 ignored; three batched assertion probes verified. Korean retains 2,670 keys; historical `afa8e184` verification and estimates are unchanged. |
 | 2026-10-15 | patch | The first integrated native run exposed two duplicate Traditional Chinese rows and missing Vietnamese/Lithuanian union keys. Removed only the duplicate rows and added 63 Vietnamese/four Lithuanian translations (both 2,664 keys at that baseline repair); these additions are AI-assisted and await native review. The later main `afa8e184` refresh brings both to 2,670. Final scoped integrated verification passed on `afa8e184`. |
